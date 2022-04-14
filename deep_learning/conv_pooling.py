@@ -41,6 +41,39 @@ def average_pooling(data, m, n):
         img_new.append(line)
     return np.array(img_new)
 
+def img2col_conv(img, kernel, padding, stride):
+    img_padding = np.pad(img, pad_width=padding)
+    kernel_flatten = kernel.flatten()
+    h, w = img.shape
+    k_h, k_w = kernel.shape
+
+    dst = []
+    for i in range(int(k_w/2), w+1, stride):
+        for j in range(int(k_h/2), h+1, stride):
+            region = img_padding[i-int(k_w/2):i+int(k_w/2)+1, j-int(k_h/2):j+int(k_h/2)+1].flatten()
+            tmp = np.sum(region * kernel_flatten)
+            dst.append(tmp)
+    dst = np.array(dst)
+
+    return np.reshape(dst, (int(w/stride), int(h/stride)))
+
+def img2col_conv(img, kernel, padding, stride):
+    img_padding = np.pad(img, pad_width=padding)
+    kernel_flatten = kernel.flatten()
+    h, w = img.shape
+    k_h, k_w = kernel.shape
+
+    dst = []
+    for i in range(int(k_w/2), w+1, stride):
+        for j in range(int(k_h/2), h+1, stride):
+            region = img_padding[i-int(k_w/2):i+int(k_w/2)+1, j-int(k_h/2):j+int(k_h/2)+1].flatten()
+            tmp = np.sum(region * kernel_flatten)
+            dst.append(tmp)
+    dst = np.array(dst)
+
+    return np.reshape(dst, (int(w/stride), int(h/stride)))
+
+
 if __name__ == "__main__":
     image = np.ones((3,5,5))
     filter = np.ones((3,3,3))
@@ -50,3 +83,6 @@ if __name__ == "__main__":
         result.append(conv(image[i],filter[i],0,1))
         # result.append(average_pooling(image[i], 2, 2))
     print(np.sum(np.array(result),axis=0))
+    img = np.random.random((10,10))
+    kernel = np.ones((3, 3))
+    print(img2col_conv(img, kernel, 1, 1))
