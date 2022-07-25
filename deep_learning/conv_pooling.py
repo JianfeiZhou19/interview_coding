@@ -63,13 +63,15 @@ def img2col_conv(img, kernel, padding, stride):
     h, w = img.shape
     k_h, k_w = kernel.shape
 
-    dst = []
+    tmp = []
     for i in range(int(k_w/2), w+1, stride):
         for j in range(int(k_h/2), h+1, stride):
             region = img_padding[i-int(k_w/2):i+int(k_w/2)+1, j-int(k_h/2):j+int(k_h/2)+1].flatten()
-            tmp = np.sum(region * kernel_flatten)
-            dst.append(tmp)
-    dst = np.array(dst)
+            tmp.append(region[np.newaxis, :])
+            # tmp = np.sum(region * kernel_flatten)
+            # dst.append(tmp)
+    tmp = np.concatenate(tmp, axis=0)
+    dst = np.sum(tmp*kernel_flatten, axis=1)
 
     return np.reshape(dst, (int(w/stride), int(h/stride)))
 
@@ -81,8 +83,8 @@ if __name__ == "__main__":
     result = []
     for i in range(channel):
         result.append(conv(image[i],filter[i],0,1))
-        # result.append(average_pooling(image[i], 2, 2))
+        result.append(average_pooling(image[i], 2, 2))
     print(np.sum(np.array(result),axis=0))
     img = np.random.random((10,10))
     kernel = np.ones((3, 3))
-    print(img2col_conv(img, kernel, 1, 1))
+    print(img2col_conv(img, kernel, 1, 2))

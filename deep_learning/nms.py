@@ -25,7 +25,9 @@ def non_max_suppress(predict_dict, threshold=0.2):
         bbox = bbox_array[keep]
         predicts_dict[object_name]=bbox.tolist()
     return predicts_dict
+
 predict_dict =  {'cup': [[59, 120, 137, 368, 0.124648176], 
                          [221, 89, 369, 367, 0.35818103], 
                          [54, 154, 148, 382, 0.13638769]]}
 result = non_max_suppress(predict_dict)
+print(result)
