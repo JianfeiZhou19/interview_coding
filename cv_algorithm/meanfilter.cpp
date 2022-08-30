@@ -74,7 +74,7 @@ void Fast_MeanFilter(cv::Mat& src, cv::Mat& dst, cv::Size wsize){
             double buttom_right = inte.at<double>(i+hh,j+hw);
             mean = (buttom_right - top_right - buttom_left + top_left) / wsize.area();
             
-                        //一定要进行判断和数据类型转换
+            //一定要进行判断和数据类型转换
             if (mean < 0)
                 mean = 0;
             else if (mean>255)
@@ -83,6 +83,48 @@ void Fast_MeanFilter(cv::Mat& src, cv::Mat& dst, cv::Size wsize){
         }
     }
     
+}
+
+int* create_integral(unsigned char *src, int rows, int cols){
+    int *res;
+    unsigned char *ptr;
+    int *pre;
+    int *cur;
+    int sum = 0;
+    int size = sizeof(int)*(rows+1)*(cols+1);
+    res = (int*)malloc(size);
+    memset(res, 0, size);
+    for(int r=0; r<rows; ++r){
+        ptr = src+r*cols;
+        pre = res+r*(cols+1)+1;
+        cur = res+(r+1)*(cols+1)+1;
+        cur[-1] = 0;
+        for(int c=0, sum=0; c<cols; ++c){
+            sum += ptr[c];
+            cur[c] = pre[c] + sum;
+        }
+    }
+    return cur;
+}
+
+void mean_filter(unsigned char* src, int rows, int cols, unsigned char *dst, int kernel){
+    unsigned char *ptr;
+    int r, c, sum;
+    int *last, *next;
+    unsigned char *out;
+    float radius = (float)(kernel*kernel);
+    int *integral_map = create_integral(src, rows, cols);
+    for(int r=1; r<rows-1; ++r){
+        ptr = src+r*cols;
+        last = integral_map+(r-1)*(cols+1)+1;
+        next = integral_map+(r+2)*(cols+1)+1;
+        out = dst+r*cols;
+        for(c=1; c<cols-1; ++c){
+            sum = next[c+1]+last[c-2]-(next[c-2]+last[c+1]);
+            out[c] = (int)(sum/radius);
+        }
+    }
+    free(integral_map);
 }
  
  
